@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- ========================================== -->
+  <!-- CUSTOM PREVIEW THUMBNAIL (OPEN GRAPH TAGS) -->
+  <!-- ========================================== -->
+  <meta property="og:title" content="Jeesmon & Sherin's Wedding Invitation">
+  <meta property="og:description" content="Sunday, 12th July 2026 at St. Joseph's Forane Church, Kodakara. Please tap to open the invite.">
+  <meta property="og:image" content="wedding-thumbnail.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Jeesmon & Sherin's Wedding Invitation">
+  <meta name="twitter:description" content="Sunday, 12th July 2026. Tap to open.">
+  <meta name="twitter:image" content="wedding-thumbnail.jpg">
+
+  <title>Jeesmon & Sherin Wedding Invite</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- React & Babel CDNs (Allows React to run directly in the browser) -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- ========================================== -->
+  <!-- FIREBASE COMPAT SDKs (Ensures zero-crash compilation) -->
+  <!-- ========================================== -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:wght@200..800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-serif {
+      font-family: 'Playfair Display', serif;
+    }
+    @keyframes falling {
+      0% {
+        transform: translateY(0vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.45;
+      }
+      90% {
+        opacity: 0.45;
+      }
+      100% {
+        transform: translateY(115vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    .animate-falling {
+      animation: falling linear infinite;
+    }
+  </style>
+</head>
+<body class="bg-stone-900 text-stone-850">
+
+  <div id="root"></div>
+
+  <!-- React Code Execution -->
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // Elegant Custom SVG Icon Components (Replaces Lucide dependency for absolute speed and offline reliability)
+    const HeartIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+    );
+    const CalendarIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+    );
+    const MapPinIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    );
+    const MusicIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    );
+    const VolumeXIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+    );
+    const UsersIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    );
+    const SendIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" x2="11" y1="2" y2="13"/><polygon points="22 2 15 22 11 13 2 9 2 2"/></svg>
+    );
+    const SparklesIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275Z"/><path d="m5 3 1 2.5L8.5 6 6 7 5 9.5 4 7 1.5 6 4 5.5Z"/><path d="m19 17 1 2.5 2.5.5-2.5 1-1 2.5-1-2.5-2.5-1 2.5-1Z"/></svg>
+    );
+    const CheckIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+    );
+    const AwardIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+    );
+    const ThumbsUpIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h3l3.15-5.3a2.12 2.12 0 0 1 3.5 1.62z"/></svg>
+    );
+    const InfoIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="16" y2="12"/><line x1="12" x2="12.01" y1="8" y2="8"/></svg>
+    );
+    const LockIcon = ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    );
+
+    // Safe extraction of global config values
+    const firebaseConfig = (() => {
+      try {
+        return typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+      } catch (e) {
+        return null;
+      }
+    })();
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'jeesmon-sherin-wedding';
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Secure initialize utilizing globally mounted Compat libraries
+    let db = null;
+    let auth = null;
+    const firebase = window.firebase;
+
+    if (firebase && firebaseConfig) {
+      try {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        auth = firebase.auth();
+      } catch (e) {
+        console.error("Firebase SDK launch failed:", e);
+      }
+    }
+
+    function MainApp() {
+      const [isOpened, setIsOpened] = useState(false);
+      const [activeTab, setActiveTab] = useState('invite');
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      const [showRsvpSuccess, setShowRsvpSuccess] = useState(false);
+      const [rsvpData, setRsvpData] = useState({
+        name: '', attending: 'yes', guests: '1', dietary: '', message: ''
+      });
+      
+      const [quizScore, setQuizScore] = useState(null);
+      const [quizAnswers, setQuizAnswers] = useState({ q1: '', q2: '', q3: '' });
+
+      // Live fallback state for offline usage
+      const [wishes, setWishes] = useState([
+        { id: 1, name: "Isakutty", date: "Just now", text: "Warmest congratulations to dearest Jeesmon and Sherin! Looking forward to celebrating this beautiful day with you both." },
+        { id: 2, name: "Joekuttan", date: "2 hours ago", text: "May God bless this wonderful union. St. Joseph's Forane Church will be a beautiful setting for your vows!" },
+        { id: 3, name: "Ezakuttan", date: "Yesterday", text: "Extremely excited for the grand reception at Theater by CG, Pudukad! See you all there on July 12th!" }
+      ]);
+      const [newWish, setNewWish] = useState({ name: '', text: '' });
+      const [particles, setParticles] = useState([]);
+
+      const audioCtxRef = useRef(null);
+      const isPlayingRef = useRef(false);
+      const schedulerTimerRef = useRef(null);
+
+      // Generate Eucalyptus leaves & petals
+      useEffect(() => {
+        const initialParticles = Array.from({ length: 22 }).map((_, i) => ({
+          id: i,
+          left: Math.random() * 100,
+          delay: Math.random() * 8,
+          duration: 6 + Math.random() * 8,
+          size: 9 + Math.random() * 11,
+          type: Math.random() > 0.45 ? 'petal' : 'leaf',
+          rotation: Math.random() * 360
+        }));
+        setParticles(initialParticles);
+      }, []);
+
+      // Realtime Countdown Clock
+      useEffect(() => {
+        const weddingDate = new Date('July 12, 2026 15:00:00').getTime();
+        const updateTimer = () => {
+          const now = new Date().getTime();
+          const difference = weddingDate - now;
+
+          if (difference <= 0) {
+            setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+            return;
+          }
+
+          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+          setTimeLeft({ days, hours, minutes, seconds });
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+        return () => clearInterval(interval);
+      }, []);
+
+      // Stephen Sanchez "Until I Found You" 6/8 slow-dance rhythm cover (Web Audio API)
+      const startSynth = () => {
+        if (audioCtxRef.current) return;
+
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        const ctx = new AudioContext();
+        audioCtxRef.current = ctx;
+
+        const delayNode = ctx.createDelay(1.5);
+        const delayFeedback = ctx.createGain();
+        const delayFilter = ctx.createBiquadFilter();
+
+        delayNode.delayTime.value = 0.52; 
+        delayFeedback.gain.value = 0.38;   
+        delayFilter.type = 'lowpass';
+        delayFilter.frequency.value = 800; 
+
+        delayNode.connect(delayFilter);
+        delayFilter.connect(delayFeedback);
+        delayFeedback.connect(delayNode);
+
+        const masterLowpass = ctx.createBiquadFilter();
+        masterLowpass.type = 'lowpass';
+        masterLowpass.frequency.value = 1100; 
+
+        masterLowpass.connect(ctx.destination);
+        delayNode.connect(masterLowpass);
+
+        const chordRoots = [50, 42, 43, 46]; 
+        const chordVoices = [
+          [62, 66, 69, 74], 
+          [61, 66, 69, 73], 
+          [62, 67, 71, 74], 
+          [62, 65, 70, 74]  
+        ];
+
+        const melodyLoop = [
+          { measure: 0, step: 0, note: 69 }, 
+          { measure: 0, step: 2, note: 71 }, 
+          { measure: 0, step: 4, note: 69 }, 
+          { measure: 1, step: 0, note: 66 }, 
+          { measure: 1, step: 3, note: 62 }, 
+          { measure: 2, step: 0, note: 69 }, 
+          { measure: 2, step: 2, note: 71 }, 
+          { measure: 2, step: 4, note: 69 }, 
+          { measure: 3, step: 0, note: 66 }, 
+          { measure: 3, step: 3, note: 64 }, 
+          { measure: 4, step: 0, note: 71 }, 
+          { measure: 4, step: 2, note: 73 }, 
+          { measure: 4, step: 4, note: 74 }, 
+          { measure: 5, step: 0, note: 71 }, 
+          { measure: 5, step: 2, note: 69 }, 
+          { measure: 5, step: 4, note: 67 }, 
+          { measure: 6, step: 0, note: 66 }, 
+          { measure: 6, step: 2, note: 67 }, 
+          { measure: 6, step: 4, note: 66 }, 
+          { measure: 7, step: 0, note: 64 }, 
+          { measure: 7, step: 3, note: 62 }  
+        ];
+
+        let currentMeasure = 0;
+        let step = 0; 
+
+        const playKickDrum = (startTime) => {
+          if (!audioCtxRef.current) return;
+          const kickOsc = ctx.createOscillator();
+          const kickGain = ctx.createGain();
+          
+          kickOsc.type = 'sine';
+          kickOsc.frequency.setValueAtTime(120, startTime);
+          kickOsc.frequency.exponentialRampToValueAtTime(0.01, startTime + 0.12);
+
+          kickGain.gain.setValueAtTime(0, startTime);
+          kickGain.gain.linearRampToValueAtTime(0.18, startTime + 0.005);
+          kickGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.14);
+
+          kickOsc.connect(kickGain);
+          kickGain.connect(masterLowpass);
+
+          kickOsc.start(startTime);
+          kickOsc.stop(startTime + 0.18);
+        };
+
+        const playRimSnap = (startTime) => {
+          if (!audioCtxRef.current) return;
+          const bufferSize = ctx.sampleRate * 0.05; 
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+
+          const noiseNode = ctx.createBufferSource();
+          noiseNode.buffer = buffer;
+
+          const noiseFilter = ctx.createBiquadFilter();
+          noiseFilter.type = 'bandpass';
+          noiseFilter.frequency.value = 1400; 
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0, startTime);
+          noiseGain.gain.linearRampToValueAtTime(0.035, startTime + 0.003);
+          noiseGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.04);
+
+          noiseNode.connect(noiseFilter);
+          noiseFilter.connect(noiseGain);
+          noiseGain.connect(masterLowpass);
+
+          noiseNode.start(startTime);
+          noiseNode.stop(startTime + 0.05);
+        };
+
+        const playGuitarPluck = (midiNote, startTime, duration, velocity = 0.055) => {
+          if (!audioCtxRef.current || ctx.state === 'suspended') return;
+
+          const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+          
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const pluckGain = ctx.createGain();
+
+          osc1.type = 'triangle';
+          osc1.frequency.setValueAtTime(freq, startTime);
+
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(freq * 0.5, startTime); 
+          osc2.detune.setValueAtTime(6, startTime); 
+
+          pluckGain.gain.setValueAtTime(0, startTime);
+          pluckGain.gain.linearRampToValueAtTime(velocity, startTime + 0.015); 
+          pluckGain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+          osc1.connect(pluckGain);
+          osc2.connect(pluckGain);
+          
+          pluckGain.connect(masterLowpass);
+          pluckGain.connect(delayNode);
+
+          osc1.start(startTime);
+          osc2.start(startTime);
+          
+          osc1.stop(startTime + duration + 0.1);
+          osc2.stop(startTime + duration + 0.1);
+        };
+
+        const playAmbientStringSwell = (midiNote, startTime, duration, velocity = 0.015) => {
+          if (!audioCtxRef.current) return;
+          const freq = 440 * Math.pow(2, (midiNote - 69) / 12);
+          
+          const swellOsc = ctx.createOscillator();
+          const swellGain = ctx.createGain();
+          const swellFilter = ctx.createBiquadFilter();
+
+          swellOsc.type = 'sawtooth';
+          swellOsc.frequency.setValueAtTime(freq, startTime);
+          swellOsc.detune.setValueAtTime(14, startTime); 
+
+          swellFilter.type = 'lowpass';
+          swellFilter.frequency.setValueAtTime(150, startTime);
+          swellFilter.frequency.exponentialRampToValueAtTime(320, startTime + 1.5); 
+
+          swellGain.gain.setValueAtTime(0, startTime);
+          swellGain.gain.linearRampToValueAtTime(velocity, startTime + 1.0); 
+          swellGain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+
+          swellOsc.connect(swellFilter);
+          swellFilter.connect(swellGain);
+          swellGain.connect(masterLowpass);
+
+          swellOsc.start(startTime);
+          swellOsc.stop(startTime + duration + 0.1);
+        };
+
+        const schedule = () => {
+          if (!isPlayingRef.current) return;
+
+          const tempo = 78; 
+          const beatDuration = 60 / tempo;
+          const stepDuration = beatDuration / 2; 
+          const now = ctx.currentTime;
+
+          const currentChordIdx = Math.floor(currentMeasure / 2) % 4;
+          const currentChord = chordVoices[currentChordIdx];
+
+          if (step === 0) {
+            playKickDrum(now); 
+          }
+          if (step === 3) {
+            playRimSnap(now); 
+          }
+
+          if (step === 0) {
+            playGuitarPluck(chordRoots[currentChordIdx], now, stepDuration * 5.5, 0.08);
+            playAmbientStringSwell(chordRoots[currentChordIdx] + 12, now, stepDuration * 6, 0.02);
+            playAmbientStringSwell(currentChord[1], now, stepDuration * 6, 0.015);
+          }
+
+          if (step % 2 === 0) {
+            const pickPitch = currentChord[1 + (step / 2) % 3];
+            playGuitarPluck(pickPitch, now, stepDuration * 3.5, 0.035);
+          }
+
+          const matchedMelody = melodyLoop.filter(
+            (m) => m.measure === (currentMeasure % 8) && m.step === step
+          );
+
+          matchedMelody.forEach((item) => {
+            playGuitarPluck(item.note, now, stepDuration * 4.5, 0.075);
+          });
+
+          step = (step + 1) % 6;
+          if (step === 0) {
+            currentMeasure = (currentMeasure + 1) % 16;
+          }
+
+          schedulerTimerRef.current = setTimeout(schedule, stepDuration * 1000);
+        };
+
+        isPlayingRef.current = true;
+        schedule();
+      };
+
+      const stopSynth = () => {
+        isPlayingRef.current = false;
+        if (schedulerTimerRef.current) {
+          clearTimeout(schedulerTimerRef.current);
+        }
+        if (audioCtxRef.current) {
+          audioCtxRef.current.close();
+          audioCtxRef.current = null;
+        }
+      };
+
+      const toggleMusic = () => {
+        if (isPlaying) {
+          stopSynth();
+          setIsPlaying(false);
+        } else {
+          setIsPlaying(true);
+          if (!audioCtxRef.current) {
+            startSynth();
+          } else if (audioCtxRef.current.state === 'suspended') {
+            audioCtxRef.current.resume();
+          }
+        }
+      };
+
+      const handleRsvpSubmit = (e) => {
+        e.preventDefault();
+        const documentPayload = {
+          id: Date.now(),
+          name: rsvpData.name,
+          attending: rsvpData.attending,
+          guests: parseInt(rsvpData.guests) || 1,
+          dietary: rsvpData.dietary,
+          message: rsvpData.message,
+          timestamp: Date.now(),
+          type: 'rsvp'
+        };
+        setWishes(prev => [documentPayload, ...prev]);
+        setShowRsvpSuccess(true);
+      };
+
+      const handleWishSubmit = (e) => {
+        e.preventDefault();
+        if (!newWish.name.trim() || !newWish.text.trim()) return;
+
+        const wishToAdd = {
+          id: Date.now(),
+          name: newWish.name,
+          text: newWish.text,
+          timestamp: Date.now(),
+          type: 'wish'
+        };
+        setWishes(prev => [wishToAdd, ...prev]);
+        setNewWish({ name: '', text: '' });
+      };
+
+      const handleQuizSubmit = (e) => {
+        e.preventDefault();
+        let score = 0;
+        if (quizAnswers.q1 === 'Kodakara') score++;
+        if (quizAnswers.q2 === 'Kottat Chalakudy') score++;
+        if (quizAnswers.q3 === 'Pudukad') score++;
+        setQuizScore(score);
+      };
+
+      return (
+        <div className="min-h-screen bg-stone-900 text-stone-850 flex flex-col justify-between relative overflow-hidden font-sans select-none pb-4">
+          
+          {/* Falling Particles Background */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+            {particles.map((p) => (
+              <div
+                key={p.id}
+                className={`absolute animate-falling ${p.type === 'petal' ? 'text-stone-100/30' : 'text-emerald-800/15'}`}
+                style={{
+                  left: `${p.left}%`,
+                  top: `-10%`,
+                  fontSize: `${p.size}px`,
+                  animationDelay: `${p.delay}s`,
+                  animationDuration: `${p.duration}s`,
+                }}
+              >
+                {p.type === 'petal' ? '❀' : '🍃'}
+              </div>
+            ))}
+          </div>
+
+          {/* Music Controller Button */}
+          {isOpened && (
+            <button 
+              onClick={toggleMusic}
+              className="fixed top-4 right-4 z-50 bg-stone-50/95 hover:bg-white text-stone-800 p-2.5 rounded-full shadow-lg border border-amber-300 transition-all duration-300 flex items-center gap-2 hover:scale-110 active:scale-95 cursor-pointer"
+            >
+              {isPlaying ? (
+                <div className="flex gap-0.5 items-end h-3 mr-1">
+                  <span className="w-0.5 bg-amber-700 animate-pulse h-2.5"></span>
+                  <span className="w-0.5 bg-amber-700 animate-pulse h-3.5" style={{ animationDelay: '0.2s' }}></span>
+                  <span className="w-0.5 bg-amber-700 animate-pulse h-2" style={{ animationDelay: '0.4s' }}></span>
+                </div>
+              ) : (
+                <VolumeXIcon className="w-4 h-4 text-stone-500" />
+              )}
+            </button>
+          )}
+
+          {/* Canvas Wrapper */}
+          <main className="flex-grow flex items-center justify-center p-3 md:p-6 z-10 w-full max-w-5xl mx-auto">
+            
+            {!isOpened ? (
+              /* Envelope Landing Seal */
+              <div className="w-full max-w-md bg-stone-100 rounded-2xl p-6 shadow-2xl border-4 border-amber-200/50 text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[520px] transition-all duration-700 hover:shadow-[0_20px_50px_rgba(132,117,78,0.2)] group">
+                <div className="absolute top-0 left-0 w-20 h-20 border-t-2 border-l-2 border-amber-600/30 rounded-tl-xl m-2"></div>
+                <div className="absolute top-0 right-0 w-20 h-20 border-t-2 border-r-2 border-amber-600/30 rounded-tr-xl m-2"></div>
+                <div className="absolute bottom-0 left-0 w-20 h-20 border-b-2 border-l-2 border-amber-600/30 rounded-bl-xl m-2"></div>
+                <div className="absolute bottom-0 right-0 w-20 h-20 border-b-2 border-r-2 border-amber-600/30 rounded-br-xl m-2"></div>
+
+                <div className="my-auto space-y-5">
+                  <div className="w-24 h-24 mx-auto bg-stone-50 rounded-full border-2 border-amber-400/40 flex items-center justify-center relative shadow-inner group-hover:scale-105 transition-transform duration-500">
+                    <span className="font-serif text-3xl text-amber-800 font-bold tracking-widest relative">
+                      JS<span className="absolute -bottom-1 -right-1 text-rose-500 text-xs">❤</span>
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-amber-700/85 font-serif tracking-widest text-[11px] uppercase font-bold">We Cordially Invite You</p>
+                    <p className="text-xs text-stone-500 italic">to the wedding celebration of</p>
+                    <h1 className="text-3xl font-serif text-stone-800 font-semibold tracking-wide">Jeesmon &amp; Sherin</h1>
+                    <div className="h-0.5 w-16 bg-amber-400/60 mx-auto"></div>
+                  </div>
+
+                  <p className="text-stone-600 text-[11px] tracking-wider max-w-xs mx-auto font-semibold">
+                    Sunday, 12th July 2026 • 3:00 PM <br />
+                    St. Joseph's Forane Church, Kodakara
+                  </p>
+
+                  <div className="pt-4">
+                    <button
+                      onClick={() => { setIsOpened(true); toggleMusic(); }}
+                      className="relative group cursor-pointer focus:outline-none"
+                    >
+                      <div className="w-14 h-14 bg-red-700 rounded-full shadow-lg border-4 border-red-800 flex items-center justify-center transition-all duration-300 group-hover:scale-110 active:scale-95 group-hover:shadow-[0_0_20px_rgba(185,28,28,0.6)] mx-auto">
+                        <span className="text-white text-[11px] font-serif font-bold tracking-wider">OPEN</span>
+                      </div>
+                      <div className="absolute -inset-2 rounded-full border border-amber-500/20 animate-ping pointer-events-none"></div>
+                      <p className="text-stone-500 text-[9px] uppercase tracking-widest mt-3 group-hover:text-amber-800 transition-colors">Tap Wax Seal to open invitation</p>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Inside Invitation details */
+              <div className="w-full bg-stone-50 rounded-2xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col md:flex-row transition-all duration-500">
+                
+                {/* LEFT PROFILE PANEL */}
+                <div className="w-full md:w-5/12 bg-stone-950 text-stone-100 p-6 md:p-8 flex flex-col justify-between relative border-b md:border-b-0 md:border-r border-amber-400/20">
+                  <div className="absolute inset-0 bg-[radial-gradient(#84754e_1px,transparent_1px)] [background-size:20px_20px] opacity-10 pointer-events-none"></div>
+                  
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full border border-amber-400/30 flex items-center justify-center">
+                        <span className="font-serif text-sm text-amber-300">JS</span>
+                      </div>
+                      <div>
+                        <h3 className="font-serif text-amber-200 text-xs uppercase tracking-widest font-semibold">Jeesmon &amp; Sherin</h3>
+                        <p className="text-[9px] text-stone-400 tracking-wider">Sunday, July 12, 2026</p>
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-gradient-to-r from-transparent via-amber-400/30 to-transparent my-4"></div>
+
+                    <div className="space-y-3 bg-stone-900/60 p-4 rounded-xl border border-amber-400/10">
+                      <span className="text-[10px] text-amber-400 font-serif tracking-widest uppercase block text-center">Holy Scripture</span>
+                      <p className="text-stone-300 text-xs italic font-serif leading-relaxed text-center">
+                        "So they are no longer two, but one. Therefore what God has joined together, let man not separate."
+                      </p>
+                      <p className="text-right text-[10px] text-amber-300/80 font-serif font-bold">- Matthew 19:6</p>
+                    </div>
+
+                    <div className="space-y-4 pt-1 text-center sm:text-left">
+                      <div>
+                        <span className="text-[9px] text-amber-400 uppercase tracking-widest block font-serif">Groom's Parents</span>
+                        <h4 className="font-serif font-semibold text-stone-100 text-sm">Mrs. Jolly Joy &amp; Mr. Joy C P</h4>
+                        <p className="text-[10px] text-stone-400">Chethalan House, Kodakara PO</p>
+                      </div>
+                      <div className="flex justify-center sm:justify-start">
+                        <span className="text-amber-500 font-serif italic text-xs">&amp;</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-amber-400 uppercase tracking-widest block font-serif">Bride's Parents</span>
+                        <h4 className="font-serif font-semibold text-stone-100 text-sm">Mrs. Shaly Jose &amp; Mr. Jose P P</h4>
+                        <p className="text-[10px] text-stone-400">Puthussery House, Kottat Chalakudy</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t border-stone-800">
+                    <p className="text-amber-400 text-[10px] tracking-widest uppercase mb-2 font-serif text-center">Solemnization Countdown</p>
+                    <div className="grid grid-cols-4 gap-1.5 text-center">
+                      <div className="bg-stone-900/80 p-1.5 rounded border border-stone-800">
+                        <div className="text-md font-bold text-stone-100">{timeLeft.days}</div>
+                        <div className="text-[8px] uppercase tracking-tighter text-stone-400">Days</div>
+                      </div>
+                      <div className="bg-stone-900/80 p-1.5 rounded border border-stone-800">
+                        <div className="text-md font-bold text-stone-100">{timeLeft.hours}</div>
+                        <div className="text-[8px] uppercase tracking-tighter text-stone-400">Hours</div>
+                      </div>
+                      <div className="bg-stone-900/80 p-1.5 rounded border border-stone-800">
+                        <div className="text-md font-bold text-stone-100">{timeLeft.minutes}</div>
+                        <div className="text-[8px] uppercase tracking-tighter text-stone-400">Mins</div>
+                      </div>
+                      <div className="bg-stone-900/80 p-1.5 rounded border border-stone-800">
+                        <div className="text-md font-bold text-stone-100">{timeLeft.seconds}</div>
+                        <div className="text-[8px] uppercase tracking-tighter text-stone-400">Secs</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT TABBED PANEL */}
+                <div className="w-full md:w-7/12 p-4 md:p-6 flex flex-col justify-between min-h-[550px] bg-stone-50">
+                  <div className="overflow-x-auto -mx-4 px-4 pb-2 border-b border-stone-200 scrollbar-none">
+                    <nav className="flex space-x-1.5 min-w-max">
+                      {[
+                        { id: 'invite', label: 'Invitation', icon: HeartIcon },
+                        { id: 'details', label: 'Venues', icon: MapPinIcon },
+                        { id: 'timeline', label: 'Schedule', icon: CalendarIcon },
+                        { id: 'compliments', label: 'Compliments', icon: UsersIcon },
+                        { id: 'rsvp', label: 'RSVP', icon: SendIcon },
+                        { id: 'guestbook', label: 'Guestbook', icon: SparklesIcon },
+                        { id: 'quiz', label: 'Trivia Quiz', icon: AwardIcon }
+                      ].map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-300 cursor-pointer ${
+                              isActive ? 'bg-amber-800 text-stone-50 shadow-md' : 'text-stone-600 hover:text-amber-800'
+                            }`}
+                          >
+                            <Icon className="w-3.5 h-3.5" />
+                            {tab.label}
+                          </button>
+                        );
+                      })}
+                    </nav>
+                  </div>
+
+                  <div className="flex-grow py-5 overflow-y-auto max-h-[390px] pr-1">
+                    
+                    {activeTab === 'invite' && (
+                      <div className="space-y-4">
+                        <div className="border border-amber-200/50 rounded-xl bg-white p-5 text-center shadow-sm">
+                          <h2 className="text-2xl font-serif font-semibold text-stone-900">Jeesmon Joy</h2>
+                          <p className="text-stone-400 text-xs italic">with</p>
+                          <h2 className="text-2xl font-serif font-semibold text-stone-900">Sherin Jose</h2>
+                          <div className="w-16 h-0.5 bg-amber-400 mx-auto my-3"></div>
+                          <p className="text-[11px] text-stone-600 leading-relaxed">
+                            We request the honor of your presence and blessings with your family on the auspicious occasion of our wedding.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'details' && (
+                      <div className="space-y-4">
+                        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
+                          <h4 className="font-serif font-bold text-stone-850 text-sm">St. Joseph's Forane Church, Kodakara</h4>
+                          <p className="text-xs text-stone-500">Sunday, July 12, 2026 at 3:00 PM</p>
+                        </div>
+                        <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
+                          <h4 className="font-serif font-bold text-stone-850 text-sm">Theater by CG, Pudukad</h4>
+                          <p className="text-xs text-stone-500">Reception starts at 6:00 PM</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'timeline' && (
+                      <div className="space-y-4 pl-3">
+                        <div className="border-l-2 border-amber-400 pl-4 space-y-4">
+                          <div>
+                            <span className="text-[10px] font-mono text-amber-700 font-bold">3:00 PM</span>
+                            <h4 className="font-serif font-bold text-stone-800 text-xs">Holy Matrimony Service</h4>
+                          </div>
+                          <div>
+                            <span className="text-[10px] font-mono text-amber-700 font-bold">6:00 PM</span>
+                            <h4 className="font-serif font-bold text-stone-800 text-xs">Grand Reception Party</h4>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'compliments' && (
+                      <div className="grid grid-cols-3 gap-3">
+                        {['Isakutty', 'Joekuttan', 'Ezakuttan'].map((name, i) => (
+                          <div key={i} className="bg-white p-4 rounded-xl border border-amber-200/40 text-center shadow-xs">
+                            <HeartIcon className="w-5 h-5 mx-auto text-rose-500 mb-1.5" />
+                            <span className="font-serif font-bold text-stone-800 text-xs block">{name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {activeTab === 'rsvp' && (
+                      <form onSubmit={handleRsvpSubmit} className="space-y-3.5 text-xs">
+                        <input
+                          type="text"
+                          required
+                          value={rsvpData.name}
+                          onChange={(e) => setRsvpData({...rsvpData, name: e.target.value})}
+                          placeholder="Your Name"
+                          className="w-full p-2 rounded-lg border border-stone-300 bg-white"
+                        />
+                        <select
+                          value={rsvpData.attending}
+                          onChange={(e) => setRsvpData({...rsvpData, attending: e.target.value})}
+                          className="w-full p-2 rounded-lg border border-stone-300 bg-white"
+                        >
+                          <option value="yes">Yes, I will attend!</option>
+                          <option value="no">No, I cannot attend</option>
+                        </select>
+                        <button type="submit" className="w-full bg-amber-800 text-white p-2.5 rounded-lg font-serif font-bold">Submit RSVP</button>
+                      </form>
+                    )}
+
+                    {activeTab === 'guestbook' && (
+                      <div className="space-y-4">
+                        <form onSubmit={handleWishSubmit} className="space-y-2">
+                          <input
+                            type="text"
+                            required
+                            value={newWish.name}
+                            onChange={(e) => setNewWish({...newWish, name: e.target.value})}
+                            placeholder="Your Name"
+                            className="w-full p-2 rounded-lg border border-stone-300 bg-white text-xs"
+                          />
+                          <textarea
+                            required
+                            value={newWish.text}
+                            onChange={(e) => setNewWish({...newWish, text: e.target.value})}
+                            placeholder="Write your blessings..."
+                            className="w-full p-2 rounded-lg border border-stone-300 bg-white text-xs resize-none"
+                            rows="2"
+                          />
+                          <button type="submit" className="w-full bg-amber-800 text-white p-2 rounded-lg font-serif text-xs font-bold cursor-pointer">Post Blessings</button>
+                        </form>
+                        <div className="space-y-2">
+                          {wishes.map((w, idx) => (
+                            <div key={idx} className="p-3 bg-white rounded-lg border border-amber-100 text-xs">
+                              <div className="font-bold flex justify-between"><span>{w.name}</span></div>
+                              <p className="italic mt-1">"{w.text}"</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {activeTab === 'quiz' && (
+                      <div className="space-y-4 text-xs">
+                        <p className="font-serif font-bold text-center">How well do you know Jeesmon &amp; Sherin's roots?</p>
+                        <div className="bg-stone-100 p-3 rounded-lg border space-y-2">
+                          <p className="font-bold">1. Where is Jeesmon's family house located?</p>
+                          <div className="flex gap-2">
+                            {['Pudukad', 'Kodakara', 'Kottat Chalakudy'].map((opt) => (
+                              <button key={opt} type="button" onClick={() => setQuizAnswers({...quizAnswers, q1: opt})} className={`p-2 rounded border w-full text-[10px] ${quizAnswers.q1 === opt ? 'bg-amber-150 font-bold border-amber-500' : 'bg-white'}`}>{opt}</button>
+                            ))}
+                          </div>
+                        </div>
+                        <button type="button" onClick={() => setQuizScore(quizAnswers.q1 === 'Kodakara' ? 3 : 0)} className="w-full bg-stone-900 text-white p-2 rounded-lg">Check Score</button>
+                        {quizScore !== null && <p className="text-center font-bold text-amber-800 mt-2">Checked! Correct answer is Kodakara.</p>}
+                      </div>
+                    )}
+
+                  </div>
+
+                  <div className="border-t border-stone-200 pt-3 flex flex-col sm:flex-row justify-between items-center text-[10px] text-stone-500 gap-1.5">
+                    <span>Holy Celebration: <strong>#JeesmonSherin2026</strong></span>
+                    <span>With Best Compliments.</span>
+                  </div>
+
+                </div>
+              </div>
+            )}
+          </main>
+
+          <footer className="text-center py-4 text-[9px] text-stone-400 tracking-wider font-serif z-10">
+            Jeesmon Joy &amp; Sherin Jose Holy Matrimony • July 12, 2026
+          </footer>
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<MainApp />);
+  </script>
+</body>
+</html>
